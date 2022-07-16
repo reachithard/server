@@ -156,14 +156,14 @@ class LockFreeRingBuffer : public NoCopyable
         char *r = (char *)ring;
         if (likely(idx + cnt <= size))
         {
-            memcpy(r + (idx * eltsize), buffer, eltsize * cnt);
+            memcpy(r + (idx * eltsize), buff, eltsize * cnt);
         }
         else
         {
             // 这里需要拷贝两次 一次尾部 一次头部
-            memcpy(r + (idx * eltsize), buffer, eltsize * (size - idx - 1));
+            memcpy(r + (idx * eltsize), buff, eltsize * (size - idx - 1));
             memcpy(r,
-                   buffer + eltsize * (size - idx - 1),
+                   buff + eltsize * (size - idx - 1),
                    eltsize * (cnt - (size - idx - 1)));
         }
     }
@@ -273,7 +273,7 @@ class LockFreeRingBuffer : public NoCopyable
         return cnt;
     }
 
-    void DequeueElems(const void *buffer, uint32_t consHead, uint32_t cnt)
+    void DequeueElems(void *buffer, uint32_t consHead, uint32_t cnt)
     {
         // 进行数据的拷贝
         uint32_t idx = consHead % mask;  // 等回绕
@@ -281,18 +281,18 @@ class LockFreeRingBuffer : public NoCopyable
         char *r = (char *)ring;
         if (likely(idx + cnt <= size))
         {
-            memcpy(buffer, r + (idx * eltsize), eltsize * cnt);
+            memcpy(buff, r + (idx * eltsize), eltsize * cnt);
         }
         else
         {
-            memcpy(buffer, r + (idx * eltsize), eltsize * (size - idx - 1));
-            memcpy(buffer + eltsize * (size - idx - 1),
+            memcpy(buff, r + (idx * eltsize), eltsize * (size - idx - 1));
+            memcpy(buff + eltsize * (size - idx - 1),
                    r,
                    eltsize * (cnt - (size - idx - 1)));
         }
     }
 
-    uint32_t DoDequeueElem(const void *buffer,
+    uint32_t DoDequeueElem(void *buffer,
                            uint32_t cnt,
                            uint32_t &avaliable,
                            HeadTailT &cons,
@@ -302,7 +302,7 @@ class LockFreeRingBuffer : public NoCopyable
         uint32_t consHead = 0;
         uint32_t consNext = 0;
         uint32_t entries = 0;
-        cnt = MoveConsHead(cnt, entries, cons, isSingle, prodHead, prodNext);
+        cnt = MoveConsHead(cnt, entries, cons, isSingle, consHead, consNext);
 
         if (cnt == 0)
         {
@@ -320,7 +320,7 @@ class LockFreeRingBuffer : public NoCopyable
         return cnt;
     }
 
-    uint32_t DoSpDequeBulk(const void *buffer,
+    uint32_t DoSpDequeBulk(void *buffer,
                            uint32_t cnt,
                            uint32_t &avaliable,
                            HeadTailT &cons)
@@ -328,7 +328,7 @@ class LockFreeRingBuffer : public NoCopyable
         return DoDequeueElem(buffer, cnt, avaliable, cons, true);
     }
 
-    uint32_t DoMpDequeBulk(const void *buffer,
+    uint32_t DoMpDequeBulk(void *buffer,
                            uint32_t cnt,
                            uint32_t &avaliable,
                            HeadTailT &cons)
@@ -336,7 +336,7 @@ class LockFreeRingBuffer : public NoCopyable
         return DoDequeueElem(buffer, cnt, avaliable, cons, false);
     }
 
-    uint32_t DoDequeBulk(const void *buffer,
+    uint32_t DoDequeBulk(void *buffer,
                          uint32_t cnt,
                          uint32_t &avaliable,
                          HeadTailT &cons)

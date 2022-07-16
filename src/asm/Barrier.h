@@ -1,22 +1,22 @@
 #ifndef _BARRIER_H_
 #define _BARRIER_H_
 
-#define ser_mb()                    \
-    do                              \
-    {                               \
-        asm volatile(::: "memory"); \
+#define ser_mb()                       \
+    do                                 \
+    {                                  \
+        asm volatile("" ::: "memory"); \
     } while (0)
 
-#define ser_wmb()                   \
-    do                              \
-    {                               \
-        asm volatile(::: "memory"); \
+#define ser_wmb()                      \
+    do                                 \
+    {                                  \
+        asm volatile("" ::: "memory"); \
     } while (0)
 
-#define ser_rmb()                   \
-    do                              \
-    {                               \
-        asm volatile(::: "memory"); \
+#define ser_rmb()                      \
+    do                                 \
+    {                                  \
+        asm volatile("" ::: "memory"); \
     } while (0)
 
 #define ser_smp_mb() ser_mb()
