@@ -24,7 +24,7 @@ typedef struct HeadTailS
 {
     std::atomic<uint32_t> head{0};
     std::atomic<uint32_t> tail{0};
-    SyncType sync = SyncType::SER_SINGLE;
+    SyncType sync = SyncType::SER_MUTIL;
 } HeadTailT;
 
 class LockFreeRingBuffer : public NoCopyable
