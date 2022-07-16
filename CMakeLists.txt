@@ -4,6 +4,8 @@ project(server)
 
 set(CMAKE_CXX_STANDARD 17)
 
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 option(BUILD_TESTS "Build unit tests." ON)
 option(DOWNLOAD_THIRDPARTY "Download thirdparty." ON)
 

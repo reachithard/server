@@ -24,7 +24,7 @@ typedef struct HeadTailS
 {
     std::atomic<uint32_t> head{0};
     std::atomic<uint32_t> tail{0};
-    SyncType sync = SyncType::SER_MUTIL;
+    SyncType sync = SyncType::SER_SINGLE;
 } HeadTailT;
 
 class LockFreeRingBuffer : public NoCopyable
@@ -258,6 +258,14 @@ class LockFreeRingBuffer : public NoCopyable
             entries = (prod.tail - consHead);
 
             // 固定值判断
+            if (cnt > entries) {
+              cnt = entries;
+            }
+
+            if (unlikely(cnt == 0)) {
+                return 0;
+            }
+
             consNext = consHead + cnt;
             if (isSingle)
             {
