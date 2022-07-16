@@ -5,6 +5,7 @@
 #include <tuple>
 #include <optional>
 #include <atomic>
+#include <math.h>
 
 #include "NoCopyable.h"
 #include "Param.h"
@@ -81,7 +82,15 @@ class LockFreeRingBuffer : public NoCopyable
                        uint32_t &avaliable,
                        HeadTailT &cons)
     {
-        return DoDequeBulk(buffer, cnt, avaliable, cons);
+        int ret = DoDequeBulk(buffer, cnt, outCnt, avaliable, cons);
+        return ret;
+    }
+
+    void Dump(const HeadTailT &cons)
+    {
+        uint32_t prodTail = prod.tail;
+        uint32_t consTail = cons.tail;
+        std::cout << "prod Tail:" << prodTail << " consTail:" << consTail << std::endl; 
     }
 
   private:
@@ -304,6 +313,7 @@ class LockFreeRingBuffer : public NoCopyable
 
     uint32_t DoDequeueElem(void *buffer,
                            uint32_t cnt,
+                           uint32_t &outCnt,
                            uint32_t &avaliable,
                            HeadTailT &cons,
                            bool isSingle)
@@ -313,7 +323,7 @@ class LockFreeRingBuffer : public NoCopyable
         uint32_t consNext = 0;
         uint32_t entries = 0;
         cnt = MoveConsHead(cnt, entries, cons, isSingle, consHead, consNext);
-
+        outCnt = entries;
         if (cnt == 0)
         {
             goto end;
@@ -332,22 +342,25 @@ class LockFreeRingBuffer : public NoCopyable
 
     uint32_t DoSpDequeBulk(void *buffer,
                            uint32_t cnt,
+                           uint32_t &outCnt,
                            uint32_t &avaliable,
                            HeadTailT &cons)
     {
-        return DoDequeueElem(buffer, cnt, avaliable, cons, true);
+        return DoDequeueElem(buffer, cnt, outCnt, avaliable, cons, true);
     }
 
     uint32_t DoMpDequeBulk(void *buffer,
                            uint32_t cnt,
+                           uint32_t &outCnt,
                            uint32_t &avaliable,
                            HeadTailT &cons)
     {
-        return DoDequeueElem(buffer, cnt, avaliable, cons, false);
+        return DoDequeueElem(buffer, cnt, outCnt, avaliable, cons, false);
     }
 
     uint32_t DoDequeBulk(void *buffer,
                          uint32_t cnt,
+                         uint32_t &outCnt,
                          uint32_t &avaliable,
                          HeadTailT &cons)
     {
@@ -356,10 +369,10 @@ class LockFreeRingBuffer : public NoCopyable
         {
             case SyncType::SER_SINGLE:
                 /* code */
-                ret = DoSpDequeBulk(buffer, cnt, avaliable, cons);
+                ret = DoSpDequeBulk(buffer, cnt, outCnt, avaliable, cons);
                 break;
             default:
-                ret = DoMpDequeBulk(buffer, cnt, avaliable, cons);
+                ret = DoMpDequeBulk(buffer, cnt, outCnt, avaliable, cons);
                 break;
         }
         return ret;

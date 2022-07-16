@@ -7,6 +7,11 @@
 #include <cstddef>
 #include <stdint.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include "Runtime.h"
 
 namespace Ser
 {
@@ -23,6 +28,8 @@ class ShaAllocator
   public:
     ShaAllocator(/* args */)
     {
+        // 这里之后改为业务层初始化
+        Singleton<Runtime>::Instance().Init();
     }
     ~ShaAllocator()
     {
@@ -36,28 +43,31 @@ class ShaAllocator
         int flag = MAP_SHARED | MAP_ANON;
 
         T *buffer =
-            mmap(NULL, sizeof(T) * n, prot, MAP_SHARED | MAP_ANON, -1, 0);
+            (T*)mmap(NULL, sizeof(T) * n, prot, MAP_SHARED | MAP_ANON, -1, 0);
 
         if (buffer == MAP_FAILED)
         {
             printf("map failed! %s\n", strerror(errno));
-            static_assert("map failed! %s\n", strerror(errno));
             return nullptr;
         }
 
         return buffer;
     }
 
-    T *allocate(std::string key, uint64_t id, size_type n, const void *hidt = 0)
+    T *allocate(std::string key,
+                uint64_t id,
+                size_type n,
+                size_type header = 0, const void *hidt = 0)
     {
-        std::string pathname = key + "_" + id;
+        std::string pathname =
+            Singleton<Runtime>::Instance().GetRingDir() + "/" +  key + "_" + std::to_string(id);
         int tmpfd = open(pathname.c_str(), O_RDWR | O_CREAT, 0600);
         if (tmpfd < 0)
         {
             return nullptr;
         }
 
-        size_t length = sizeof(T) * n;
+        size_t length = header + sizeof(T) * n; // 前半部分
         int retval = ftruncate(tmpfd, length);
         if (retval < 0)
         {
@@ -68,7 +78,7 @@ class ShaAllocator
         int prot = PROT_READ | PROT_WRITE;
         int flag = MAP_SHARED;
 
-        T *buffer = mmap(nullptr, 0, prot, flag, tmpfd, 0);
+        T *buffer = (T *)mmap(nullptr, 0, prot, flag, tmpfd, 0);
         if (buffer == MAP_FAILED)
         {
             munmap(buffer, length);
@@ -76,17 +86,21 @@ class ShaAllocator
             return nullptr;
         }
 
-        close(tempfd);
+        close(tmpfd);
         return buffer;
     }
 
-    void deallocate(std::string key, uint64_t id, T *p, size_type n)
+    void deallocate(std::string key,
+                    uint64_t id,
+                    T *p,
+                    size_type n, size_type header = 0)
     {
-        std::string pathname = key + "_" + id;
+        std::string pathname = Singleton<Runtime>::Instance().GetRingDir() +
+                               "/" + key + "_" + std::to_string(id);
         unlink(pathname.c_str());
         if (p != nullptr)
         {
-            munmap(p, sizeof(T) * n);
+            munmap(p, sizeof(T) * n + header);
         }
     }
 
