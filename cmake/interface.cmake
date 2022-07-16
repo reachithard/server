@@ -28,6 +28,7 @@ ADD_LIBRARY(intf INTERFACE)
 TARGET_INCLUDE_DIRECTORIES(intf INTERFACE 
                     ${BASE_DIR}/src
                     ${BASE_DIR}/src/allocator
+                    ${BASE_DIR}/src/asm
                     ${BASE_DIR}/src/container
                     ${BASE_DIR}/src/detail
                     ${BASE_DIR}/src/utils)
