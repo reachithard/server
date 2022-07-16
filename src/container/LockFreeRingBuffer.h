@@ -258,11 +258,13 @@ class LockFreeRingBuffer : public NoCopyable
             entries = (prod.tail - consHead);
 
             // 固定值判断
-            if (cnt > entries) {
-              cnt = entries;
+            if (cnt > entries)
+            {
+                cnt = entries;
             }
 
-            if (unlikely(cnt == 0)) {
+            if (unlikely(cnt == 0))
+            {
                 return 0;
             }
 

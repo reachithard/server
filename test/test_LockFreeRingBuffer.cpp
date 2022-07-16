@@ -60,7 +60,9 @@ TEST(LockFreeRingBuffer, mallocAllocator)
 
     auto end = std::chrono::steady_clock::now();
     auto elapsed_seconds =
-        std::chrono::duration_cast<std::chrono::microseconds>(end.time_since_epoch() - start.time_since_epoch()).count();
+        std::chrono::duration_cast<std::chrono::microseconds>(
+            end.time_since_epoch() - start.time_since_epoch())
+            .count();
 
     std::cout << "elapsed time: " << elapsed_seconds << "us\n";
     constexpr uint32_t rdSize = 1;
@@ -133,8 +135,8 @@ TEST(LockFreeRingBuffer, sharedMemSpSc)
 
     auto end = std::chrono::steady_clock::now();
     auto elapsed_seconds =
-        std::chrono::duration<double>(
-            end.time_since_epoch() - start.time_since_epoch())
+        std::chrono::duration<double>(end.time_since_epoch() -
+                                      start.time_since_epoch())
             .count();
 
     std::cout << "elapsed time: " << elapsed_seconds << "s\n";
@@ -156,10 +158,9 @@ TEST(LockFreeRingBuffer, sharedMemSpSc)
         // }
     }
     end = std::chrono::steady_clock::now();
-    elapsed_seconds =
-        std::chrono::duration<double>(end.time_since_epoch() -
-                                      start.time_since_epoch())
-            .count();
+    elapsed_seconds = std::chrono::duration<double>(end.time_since_epoch() -
+                                                    start.time_since_epoch())
+                          .count();
 
     std::cout << "elapsed time: " << elapsed_seconds << "us\n";
 
@@ -168,5 +169,4 @@ TEST(LockFreeRingBuffer, sharedMemSpSc)
 
 TEST(LockFreeRingBuffer, sharedMemIngSpSc)
 {
-
 }
