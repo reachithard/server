@@ -6,19 +6,21 @@
 
 #include "NoCopyable.h"
 
-namespace Ser {
+namespace Ser
+{
 class SpinLock : public NoCopyable
 {
   public:
-    inline void pause() {
-
+    inline void pause()
+    {
     }
 
     void lock()
     {
         for (int spin_count = 0; !try_lock(); ++spin_count)
         {
-            if (spin_count < 16) {
+            if (spin_count < 16)
+            {
                 pause();
             }
             else
@@ -41,6 +43,6 @@ class SpinLock : public NoCopyable
   private:
     std::atomic<bool> lk{false};
 };
-}
+}  // namespace Ser
 
 #endif  // _SPINLOCK_H_
