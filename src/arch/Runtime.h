@@ -14,7 +14,7 @@ namespace Ser
 {
 class Runtime : public Singleton<Runtime>
 {
-    public:
+  public:
     Runtime()
     {
     }

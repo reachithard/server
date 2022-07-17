@@ -90,7 +90,8 @@ class LockFreeRingBuffer : public NoCopyable
     {
         uint32_t prodTail = prod.tail;
         uint32_t consTail = cons.tail;
-        std::cout << "prod Tail:" << prodTail << " consTail:" << consTail << std::endl; 
+        std::cout << "prod Tail:" << prodTail << " consTail:" << consTail
+                  << std::endl;
     }
 
   private:

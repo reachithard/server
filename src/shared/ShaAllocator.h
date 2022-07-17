@@ -43,7 +43,7 @@ class ShaAllocator
         int flag = MAP_SHARED | MAP_ANON;
 
         T *buffer =
-            (T*)mmap(NULL, sizeof(T) * n, prot, MAP_SHARED | MAP_ANON, -1, 0);
+            (T *)mmap(NULL, sizeof(T) * n, prot, MAP_SHARED | MAP_ANON, -1, 0);
 
         if (buffer == MAP_FAILED)
         {
@@ -57,17 +57,18 @@ class ShaAllocator
     T *allocate(std::string key,
                 uint64_t id,
                 size_type n,
-                size_type header = 0, const void *hidt = 0)
+                size_type header = 0,
+                const void *hidt = 0)
     {
-        std::string pathname =
-            Singleton<Runtime>::Instance().GetRingDir() + "/" +  key + "_" + std::to_string(id);
+        std::string pathname = Singleton<Runtime>::Instance().GetRingDir() +
+                               "/" + key + "_" + std::to_string(id);
         int tmpfd = open(pathname.c_str(), O_RDWR | O_CREAT, 0600);
         if (tmpfd < 0)
         {
             return nullptr;
         }
 
-        size_t length = header + sizeof(T) * n; // 前半部分
+        size_t length = header + sizeof(T) * n;  // 前半部分
         int retval = ftruncate(tmpfd, length);
         if (retval < 0)
         {
@@ -93,7 +94,8 @@ class ShaAllocator
     void deallocate(std::string key,
                     uint64_t id,
                     T *p,
-                    size_type n, size_type header = 0)
+                    size_type n,
+                    size_type header = 0)
     {
         std::string pathname = Singleton<Runtime>::Instance().GetRingDir() +
                                "/" + key + "_" + std::to_string(id);

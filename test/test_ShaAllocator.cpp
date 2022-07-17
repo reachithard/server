@@ -58,8 +58,6 @@ typedef struct MallocDataS
 
 } MallocDataT;
 
-
-
 TEST(ShaAllocator, Anon)
 {
     ShaAllocator allocator;
@@ -144,62 +142,64 @@ TEST(ShaAllocator, AnonRandomAndCheck)
     writerReport.reserve(loopTimes);
 
     // 开启线程测试一下 然后比对一下输出文件
-    function<void()> writerFunc = [loopTimes, &writerReport, &ringBuffer, &cons]() {
-        uint64_t seq = 0;
-        uint32_t free = 0;
-        uint32_t ret = 0;
-        constexpr uint32_t wrSize = 1;
-        MallocDataT writer[wrSize] = {0};
+    function<void()> writerFunc =
+        [loopTimes, &writerReport, &ringBuffer, &cons]() {
+            uint64_t seq = 0;
+            uint32_t free = 0;
+            uint32_t ret = 0;
+            constexpr uint32_t wrSize = 1;
+            MallocDataT writer[wrSize] = {0};
 
-        auto start = std::chrono::steady_clock::now();
-        for (int idx = 0; idx < loopTimes; idx++)
-        {
-            for (int tt = 0; tt < wrSize; tt++)
+            auto start = std::chrono::steady_clock::now();
+            for (int idx = 0; idx < loopTimes; idx++)
             {
-                writer[tt].seq = seq;
-                seq++;
+                for (int tt = 0; tt < wrSize; tt++)
+                {
+                    writer[tt].seq = seq;
+                    seq++;
 
-                strncpy(writer[tt].buffer, (const char*)RandKey(), 149);
-                writer[tt].buffer[149] = '\0';
+                    strncpy(writer[tt].buffer, (const char *)RandKey(), 149);
+                    writer[tt].buffer[149] = '\0';
 
-                double tmpd =
-                    RandDoubleRange(1.01, 2.01);
+                    double tmpd = RandDoubleRange(1.01, 2.01);
 
-                float tmpp = RandDoubleRange<float>(1.01, 2.01);
+                    float tmpp = RandDoubleRange<float>(1.01, 2.01);
 
-                uint32_t tmpt = RandRange<int>(5, 10);
+                    uint32_t tmpt = RandRange<int>(5, 10);
 
                     for (int pp = 0; pp < MALLOC_DATA_SIZE; pp++)
-                {
-                    writer[tt].d[pp] = tmpd;
-                    writer[tt].p[pp] = tmpp;
-                    writer[tt].t[pp] = tmpt;
+                    {
+                        writer[tt].d[pp] = tmpd;
+                        writer[tt].p[pp] = tmpp;
+                        writer[tt].t[pp] = tmpt;
+                    }
+
+                    // 这里先不做数据检验了
+                    // shared_ptr<MallocDataT> ptr =
+                    //     make_shared<MallocDataT>(writer[tt]);
+                    // writerReport.push_back(ptr);
                 }
-
-                // 这里先不做数据检验了
-                // shared_ptr<MallocDataT> ptr =
-                //     make_shared<MallocDataT>(writer[tt]);
-                // writerReport.push_back(ptr);
+                ret = ringBuffer->EnqueBulk(writer, wrSize, free, cons);
+                // cout << "ret:" << ret << " free:" << free << endl;
             }
-            ret = ringBuffer->EnqueBulk(writer, wrSize, free, cons);
-            // cout << "ret:" << ret << " free:" << free << endl;
-        }
 
-        auto end = std::chrono::steady_clock::now();
-        auto elapsed_seconds =
-            std::chrono::duration<double>(end.time_since_epoch() -
-                                          start.time_since_epoch())
-                .count();
+            auto end = std::chrono::steady_clock::now();
+            auto elapsed_seconds =
+                std::chrono::duration<double>(end.time_since_epoch() -
+                                              start.time_since_epoch())
+                    .count();
 
-        ringBuffer->Dump(cons);
-        std::cout << "writer elapsed time: " << elapsed_seconds
-                             << "s\n";
-    };
+            ringBuffer->Dump(cons);
+            std::cout << "writer elapsed time: " << elapsed_seconds << "s\n";
+        };
 
     vector<shared_ptr<MallocDataT>> readerReport;
     readerReport.reserve(loopTimes);
 
-    function<void()> readerFunc = [loopTimes, &ringBuffer, &cons, &readerReport]() {
+    function<void()> readerFunc = [loopTimes,
+                                   &ringBuffer,
+                                   &cons,
+                                   &readerReport]() {
         constexpr uint32_t rdSize = 1;
         MallocDataT *reader =
             (MallocDataT *)malloc(sizeof(MallocDataT) * rdSize);
@@ -209,7 +209,8 @@ TEST(ShaAllocator, AnonRandomAndCheck)
 
         auto start = std::chrono::steady_clock::now();
 
-        while (true) {
+        while (true)
+        {
             ret =
                 ringBuffer->DequeBulk(reader, rdSize, outLen, avaliable, cons);
             // cout << "ret:" << ret << " outLen:" << outLen
@@ -219,7 +220,8 @@ TEST(ShaAllocator, AnonRandomAndCheck)
                 break;
             }
 
-            if (outLen == 0) {
+            if (outLen == 0)
+            {
                 // ringBuffer->Dump(cons);
                 continue;
             }
@@ -232,9 +234,10 @@ TEST(ShaAllocator, AnonRandomAndCheck)
             }
         }
         auto end = std::chrono::steady_clock::now();
-        auto elapsed_seconds = std::chrono::duration<double>(
-                              end.time_since_epoch() - start.time_since_epoch())
-                              .count();
+        auto elapsed_seconds =
+            std::chrono::duration<double>(end.time_since_epoch() -
+                                          start.time_since_epoch())
+                .count();
 
         std::cout << "reader elapsed time: " << elapsed_seconds << "us\n";
     };
@@ -248,7 +251,8 @@ TEST(ShaAllocator, AnonRandomAndCheck)
     std::string wrfilename = "ShaAllocator_AnonRandomAndCheck_Writer.log";
     std::ofstream wrStream(wrfilename, std::ios::app | std::ios::out);
 
-    for (int t = 0; t < writerReport.size(); t++) {
+    for (int t = 0; t < writerReport.size(); t++)
+    {
         wrStream << *writerReport[t].get();
     }
 

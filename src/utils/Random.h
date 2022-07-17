@@ -7,8 +7,8 @@
 #include <string>
 #include <cassert>
 
-
-namespace Ser {
+namespace Ser
+{
 inline unsigned int Rand()
 {
     std::random_device rd;
@@ -81,6 +81,6 @@ inline auto RandWeight(const Values& v, const Weights& w)
     int index = dist(g);
     return v[index];
 }
-}
+}  // namespace Ser
 
-#endif // _RANDOM_H_
+#endif  // _RANDOM_H_

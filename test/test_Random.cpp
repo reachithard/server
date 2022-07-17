@@ -13,7 +13,8 @@ TEST(Random, rand)
         cout << Rand() << endl;
     }
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++)
+    {
         cout << RandRange<int>(10, 20) << endl;
     }
 
