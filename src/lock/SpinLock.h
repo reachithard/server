@@ -10,28 +10,33 @@ namespace Ser {
 class SpinLock : public NoCopyable
 {
   public:
-    void lock() noexcept {
-        while (true)
+    inline void pause() {
+
+    }
+
+    void lock()
+    {
+        for (int spin_count = 0; !try_lock(); ++spin_count)
         {
-            if (!lk.exchange(true, std::memory_order_acquire))
-            {
-                return;
+            if (spin_count < 16) {
+                pause();
             }
-            uint32_t counter = 0;
-            while (lk.load(std::memory_order_relaxed))
+            else
             {
-                if (++counter > 16) {
-                    std::this_thread::yield();
-                }
+                std::this_thread::yield();
+                spin_count = 0;
             }
         }
-        
     }
-
-    void unlock() noexcept {
-
+    bool try_lock()
+    {
+        return !lk.load(std::memory_order_relaxed) &&
+               !lk.exchange(true, std::memory_order_acquire);
     }
-
+    void unlock()
+    {
+        lk.store(false, std::memory_order_release);
+    }
 
   private:
     std::atomic<bool> lk{false};
