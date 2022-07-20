@@ -38,8 +38,12 @@ class McsLock : NoCopyable
         {
             McsLock *me = __atomic_load_n(&m, __ATOMIC_RELAXED);
 
-            if (likely(__atomic_compare_exchange_n(
-                    queue, &me, nullptr, 0, __ATOMIC_RELEASE, __ATOMIC_RELAXED)))
+            if (likely(__atomic_compare_exchange_n(queue,
+                                                   &me,
+                                                   nullptr,
+                                                   0,
+                                                   __ATOMIC_RELEASE,
+                                                   __ATOMIC_RELAXED)))
                 return;
 
             __atomic_thread_fence(__ATOMIC_ACQUIRE);
