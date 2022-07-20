@@ -20,7 +20,12 @@
      ```
      地址变换算法为:首先来一个地址，其中包含了tag,offset。而cache里面存了valid,tag,以及offset。首先遍历（没有index)查找cache line，然后比对tag(cache和地址的)以及valid。匹配则hit，否则miss。然后offset查找字节。
      ```
-   组相连映射:
+   组相连映射:   
+     块内全相连映射，块间直接映射。即先分组，组是直接映射，组内随便选。
+     ```
+    公式为i = j mod c, 即映射到c块（但为了效率有可能是i = j & (c - 1))公式), 还会有一个标记为。这个为映射算法
+    地址变换算法为:首先来一个地址，其中包含了tag,index,offset。而cache里面存了valid,tag,以及offset。首先通过index（地址)查找cache line，然后组内遍历比对tag(cache和地址的)以及valid。匹配则hit，否则miss。然后offset查找字节。因此有一种优化算法是cache line友好。防止MESI协议等，空间换时间。
+     ```
 * iommu
 ## 二、 系统
 * 虚拟内存
