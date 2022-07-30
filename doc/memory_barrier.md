@@ -75,7 +75,7 @@
 * 页表
 * SMP和NUMA
 ## 三、 一致性协议
-* MESI协议1
+* MESI协议
 ## 四、 c++内存序
 * volatile
 * 内存屏障
