@@ -26,6 +26,6 @@ if(DOWNLOAD_THIRDPARTY)
 include(cmake/thirdparty.cmake)
 endif()
 
-if (BUILD_TESTS)
+if (BUILD_TESTS AND NOT DOWNLOAD_THIRDPARTY)
     add_subdirectory(test)
 endif()
